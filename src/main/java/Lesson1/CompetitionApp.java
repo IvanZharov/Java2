@@ -2,38 +2,39 @@ package Lesson1;
 
 public class CompetitionApp {
     public static void main(String[] args) {
-        int distanceToRun1 = 4;
-        int heightToJump1 = 2;
-        int distanceToRun2 = 5;
 
-        int[] route = {
-                distanceToRun1, heightToJump1, distanceToRun2
+        Barreirs[] barreirs = {
+                new Treadmill("Run", 4),
+                new Wall("Jump", 2),
+                new Treadmill("Run", 10),
         };
 
         Athlete[] athletes = {
-            new Cat("A", 4, 3),
-            new Robot("B", 2, 1),
-            new Human("C", 20, 2),
-            new Cat("D", 7, 4),
-            new Robot("E", 10, 2),
-            new Human("F", 25, 2)
+                new Cat("Egg", 4, 3),
+                new Cat("Dinner", 15, 4),
+                new Robot("B-32", 2, 1),
+                new Robot("E-11", 10, 5),
+                new Human("Clor", 3, 1),
+                new Human("Fred", 10, 2)
         };
 
         for (int i = 0; i < athletes.length; i++) {
-            athletes[i].runPassChecker(distanceToRun1);
-            if (athletes[i].runPassChecker(distanceToRun1) == true) {
-                athletes[i].runPassChecker(distanceToRun1);
-                if (athletes[i].jumpPassChecker(heightToJump1) == true) {
-                    athletes[i].jumpPassChecker(heightToJump1);
-                    if (athletes[i].runPassChecker(distanceToRun2) == true) {
-                        System.out.println(athletes[i].getName() + " финишировал");
-                    }
+            for (int j = 0; j < barreirs.length; j++) {
+                String barrierType = barreirs[j].getBarrierType;
+                int barrierCondition = barreirs[j].getBarrierCondition;
+                if (barrierType == "Run") {
+                    athletes[i].runPassChecker(barrierCondition);
+                    if (athletes[i].runPassChecker(barrierCondition) == false){
+                        System.out.println("Сошел");
+                        break;}
+                } else {
+                    athletes[i].jumpPassChecker(barrierCondition);
+                    if (athletes[i].jumpPassChecker(barrierCondition) == false){
+                        System.out.println("Сошел");
+                        break;}
                 }
-            } else System.out.println("Сошел");
-
-
+            }
         }
-
 /*
 * У препятствий есть длина (для дорожки) или высота (для стены), а участников ограничения на бег и прыжки.
 Если участник не смог пройти одно из препятствий, то дальше по списку он препятствий не идет.
