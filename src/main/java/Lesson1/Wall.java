@@ -1,13 +1,27 @@
 package Lesson1;
 
 public class Wall extends Barreirs {
-    int barrierCondition;
-    boolean passTheBarrier = true;
+    private String barrierType;
+    private int barrierCondition;
 
-    @Override
-    public boolean passTheBarrier(int canDo) {
-        if (canDo >= barrierCondition) {
-            return true;
-        } else return false;
+    public Wall(String barrierType, int barrierCondition){
+        this.barrierType = barrierType;
+        this.barrierCondition = barrierCondition;
+    }
+
+    public String getBarrierType() {
+        return barrierType;
+    }
+
+    public void setBarrierType(String barrierType) {
+        this.barrierType = barrierType;
+    }
+
+    public int getBarrierCondition() {
+        return barrierCondition;
+    }
+
+    public void setBarrierCondition(int barrierCondition) {
+        this.barrierCondition = barrierCondition;
     }
 }
