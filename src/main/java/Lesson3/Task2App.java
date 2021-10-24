@@ -15,7 +15,6 @@ public class Task2App {
         add("123-32-00","Иванов");
 
         get("Иванов");
-
     }
 
     private static void add(String number, String name) {
