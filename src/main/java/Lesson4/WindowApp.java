@@ -26,13 +26,13 @@ public class WindowApp extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String typedText = e.getActionCommand();
-                textArea.setText(textArea.getText() + "   " + field.getText());
+                textArea.setText(textArea.getText() + "   \n" + field.getText());
             }
         });
         field.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                textArea.setText(textArea.getText() + "   " + field.getText());
+                textArea.setText(textArea.getText() + "   \n" + field.getText());
             }
         });
 
