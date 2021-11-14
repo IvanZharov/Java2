@@ -56,5 +56,11 @@ public class MyServer {
         clients.remove(client);
     }
 
-
+    public boolean activeClientsChecker(String clientName) {
+        if (clients.contains(clientName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

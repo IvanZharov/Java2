@@ -9,4 +9,6 @@ public class Constants {
     public static final String AUTH_COMMAND = "/auth";
 
     public static final String AUTH_OK_COMMAND = "/authOK";
+
+    public static final String DIRECT_MESSAGE_COMMAND = "/w";
 }

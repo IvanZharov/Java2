@@ -46,9 +46,14 @@ public class ClientHandler {
 
                 if (nick != null) {
                     name = nick;
-                    sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
-                    server.broadcastMessage(nick + " has entered the chat");
-                    server.subscribe(this);
+
+                    if (server.activeClientsChecker(name)) {
+                        System.out.println("Такой пользователь уже находится в чате");
+                    } else {
+                        sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
+                        server.broadcastMessage(nick + " has entered the chat");
+                        server.subscribe(this);
+                    }
                     return;
                 } else {
                     System.out.println("Incorrect login/password");
@@ -68,11 +73,23 @@ public class ClientHandler {
     private void readMessage() throws IOException {
         while(true) {
             String messageFromClient = in.readUTF();
-            System.out.println("Message from: " + name + ": " + messageFromClient);
-            if (messageFromClient.equals(Constants.END_COMMAND)) {
-                break;
+
+            if (messageFromClient.equals(Constants.DIRECT_MESSAGE_COMMAND)) {
+                String[] messageDirect = messageFromClient.split("\\s+");
+                String nameReceiver = messageDirect[1];
+
+                /**Если есть команда письма конкретному пользователю, и этот пользователь есть в активном чате,
+                 * то мы отправляем ему письмо, за исключением первых двух элементов.
+                 */
+
+
+            } else {
+                System.out.println("Message from: " + name + ": " + messageFromClient);
+                if (messageFromClient.equals(Constants.END_COMMAND)) {
+                    break;
+                }
+                server.broadcastMessage(messageFromClient);
             }
-            server.broadcastMessage(messageFromClient);
         }
     }
 
