@@ -74,13 +74,21 @@ public class ClientHandler {
         while(true) {
             String messageFromClient = in.readUTF();
 
+            /**Если есть команда письма конкретному пользователю, и этот пользователь есть в активном чате,
+             * то мы отправляем ему письмо, за исключением первых двух элементов массива слов сообщения.
+             */
             if (messageFromClient.equals(Constants.DIRECT_MESSAGE_COMMAND)) {
                 String[] messageDirect = messageFromClient.split("\\s+");
                 String nameReceiver = messageDirect[1];
 
-                /**Если есть команда письма конкретному пользователю, и этот пользователь есть в активном чате,
-                 * то мы отправляем ему письмо, за исключением первых двух элементов.
-                 */
+                if (server.activeClientsChecker(nameReceiver) == true) {
+                    String messageWithoutTwoElem = null;
+                    for (int i = 2; i < messageDirect.length; i++) {
+                        messageWithoutTwoElem = String.join(" ", messageDirect[i], messageWithoutTwoElem);
+                    }
+                    server.broadcastDirectMessage(messageWithoutTwoElem, nameReceiver);
+                }
+
 
 
             } else {

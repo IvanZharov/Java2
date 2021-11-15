@@ -63,4 +63,10 @@ public class MyServer {
             return false;
         }
     }
+
+    public synchronized void broadcastDirectMessage(String message, String name) {
+        for (ClientHandler name : clients) {
+            name.sendMessage(message);
+        }
+    }
 }
