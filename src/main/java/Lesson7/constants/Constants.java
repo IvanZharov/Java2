@@ -1,14 +1,27 @@
 package Lesson7.constants;
 
 public class Constants {
-    public static final String SERVER_ADDRESS = "localhost"; //или ip адрес
+    /**
+     * Адрес сервера.
+     */
+    public static final String SERVER_ADDRESS = "localhost";
+    /**
+     * Порт сервера.
+     */
     public static final int SERVER_PORT = 8189;
 
+
+    /**
+     * Команда конца связи.
+     */
     public static final String END_COMMAND = "/end";
 
     public static final String AUTH_COMMAND = "/auth";
 
-    public static final String AUTH_OK_COMMAND = "/authOK";
+    public static final String AUTH_OK_COMMAND = "/authok";
 
     public static final String DIRECT_MESSAGE_COMMAND = "/w";
+
+    private final static int TIME_LIMIT = 120_000;
+
 }

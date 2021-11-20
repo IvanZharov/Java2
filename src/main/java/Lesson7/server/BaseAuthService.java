@@ -3,7 +3,7 @@ package Lesson7.server;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BaseAuthService implements AuthService{
+public class BaseAuthService implements AuthService {
 
     private List<Entry> entries;
 
@@ -17,19 +17,17 @@ public class BaseAuthService implements AuthService{
     @Override
     public void start() {
         System.out.println("Auth service is running");
-
     }
 
     @Override
     public void stop() {
         System.out.println("Auth service is shutting down");
-
     }
 
     @Override
     public String getNickByLoginAndPass(String login, String pass) {
         for (Entry entry : entries) {
-            if (entry.login.equals(login) && entry.password.equals(pass)) {
+            if(entry.login.equals(login) && entry.password.equals(pass)) {
                 return entry.nick;
             }
         }

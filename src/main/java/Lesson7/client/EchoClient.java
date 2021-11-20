@@ -1,22 +1,23 @@
 package Lesson7.client;
 
-        import java.awt.BorderLayout;
-        import java.awt.event.ActionEvent;
-        import java.awt.event.ActionListener;
-        import java.io.DataInputStream;
-        import java.io.DataOutputStream;
-        import java.io.IOException;
-        import java.net.Socket;
 
-        import javax.swing.JButton;
-        import javax.swing.JFrame;
-        import javax.swing.JPanel;
-        import javax.swing.JScrollPane;
-        import javax.swing.JTextArea;
-        import javax.swing.JTextField;
-        import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
-        import Lesson7.constants.Constants;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import Lesson7.constants.Constants;
 
 public class EchoClient extends JFrame {
 

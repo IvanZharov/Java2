@@ -1,19 +1,29 @@
 package Lesson7.server;
 
-import Lesson7.constants.Constants;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import Lesson7.constants.Constants;
+
+/**
+ * Обработчик для конкретного клиента.
+ */
 public class ClientHandler {
 
     private MyServer server;
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+
+    public String getName() {
+        return name;
+    }
+
     private String name;
+
+
 
     public ClientHandler(MyServer server, Socket socket) {
         try {
@@ -21,14 +31,14 @@ public class ClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-
             new Thread(() -> {
                 try {
+                    authTimeChecker();
                     authentification();
                     readMessage();
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                }finally {
+                } finally {
                     closeConnection();
                 }
             }).start();
@@ -37,26 +47,24 @@ public class ClientHandler {
         }
     }
 
+    // /auth login pass
+
     private void authentification() throws IOException {
         while (true) {
             String str = in.readUTF();
-            if(str.startsWith(Constants.AUTH_COMMAND)) {
-                String[] tokens = str.split("\\s+");
+            if (str.startsWith(Constants.AUTH_COMMAND)) {
+                String[] tokens = str.split("\\s+");    //3
                 String nick = server.getAuthService().getNickByLoginAndPass(tokens[1], tokens[2]);
-
                 if (nick != null) {
+                    //Дописать проверку что такого ника нет в чате(*)
+                    //Авторизовались
                     name = nick;
-
-                    if (server.activeClientsChecker(name)) {
-                        System.out.println("Такой пользователь уже находится в чате");
-                    } else {
-                        sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
-                        server.broadcastMessage(nick + " has entered the chat");
-                        server.subscribe(this);
-                    }
+                    sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
+                    server.broadcastMessage(nick + " вошел в чят");
+                    server.subscribe(this);
                     return;
                 } else {
-                    System.out.println("Incorrect login/password");
+                    sendMessage("Неверные логин/пароль");
                 }
             }
         }
@@ -71,53 +79,68 @@ public class ClientHandler {
     }
 
     private void readMessage() throws IOException {
-        while(true) {
+        while (true) {
             String messageFromClient = in.readUTF();
+            //hint: можем получать команду
 
-            /**Если есть команда письма конкретному пользователю, и этот пользователь есть в активном чате,
-             * то мы отправляем ему письмо, за исключением первых двух элементов массива слов сообщения.
-             */
-            if (messageFromClient.equals(Constants.DIRECT_MESSAGE_COMMAND)) {
-                String[] messageDirect = messageFromClient.split("\\s+");
-                String nameReceiver = messageDirect[1];
-
-                if (server.activeClientsChecker(nameReceiver) == true) {
-                    String messageWithoutTwoElem = null;
-                    for (int i = 2; i < messageDirect.length; i++) {
-                        messageWithoutTwoElem = String.join(" ", messageDirect[i], messageWithoutTwoElem);
-                    }
-                    server.broadcastDirectMessage(messageWithoutTwoElem, nameReceiver);
-                }
-
-
-
+            if (messageFromClient.equals(Constants.END_COMMAND)) {
+                break;
+            } else if (messageFromClient.equals(Constants.DIRECT_MESSAGE_COMMAND)) {
+                String[] tokens = messageFromClient.split("\\s");
+                String nick = tokens[1];
+                String message  = messageFromClient.substring(4 + nick.length());
+                MyServer.sendMessageToClient(this, nick, message);
             } else {
-                System.out.println("Message from: " + name + ": " + messageFromClient);
-                if (messageFromClient.equals(Constants.END_COMMAND)) {
-                    break;
-                }
-                server.broadcastMessage(messageFromClient);
+            System.out.println("Сообщение от " + name + ": " + messageFromClient);
+            server.broadcastMessage(name + ": " + messageFromClient);
             }
         }
     }
 
     private void closeConnection() {
         server.unsubscribe(this);
-        server.broadcastMessage(name + " has left");
+        server.broadcastMessage(name + " вышел из чята");
         try {
             in.close();
-        }catch (IOException ex) {
-
+        } catch (IOException ex) {
+            //ignore
         }
         try {
             out.close();
-        }catch (IOException ex) {
-
+        } catch (IOException ex) {
+            //ignore
         }
         try {
             socket.close();
-        }catch (IOException ex) {
-
+        } catch (IOException ex) {
+            //ignore
         }
+    }
+
+    private void authTimeChecker() {
+            new Thread(() -> {
+                try {
+                    Thread threadAuthChecker = new Thread();
+                    threadAuthChecker.start();
+                    threadAuthChecker.join();
+                    threadAuthChecker.sleep(2000);
+                    if (name != null) {
+                        threadAuthChecker.stop();
+                        /**
+                         * Нужно через .interrupt(), но я не придумал как связать команду из
+                         * authentification() и этот checker (из того метода не видно этот
+                         * поток, поэтому не получилось послать сюда команду),
+                         * поэтому через плохой вариант с .stop()
+                         */
+                    } else {
+                        sendMessage("Вы не подключились, соединение разорвано");
+                        closeConnection();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            });
+
     }
 }
