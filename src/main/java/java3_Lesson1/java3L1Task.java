@@ -26,5 +26,4 @@ public class java3L1Task {
 
     }
 
-
 }
