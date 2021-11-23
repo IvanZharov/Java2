@@ -39,8 +39,11 @@ public class Box<F extends Fruit> {
     }
 
     public void putToAnotherBox(Box<F> boxToPutIn) {
+        if (fruitsList.getClass().equals(boxToPutIn.getClass()) || boxToPutIn.getFruitsList().isEmpty()) {
         boxToPutIn.fruitsList.addAll(fruitsList);
         fruitsList.clear();
+        } else {
+            System.out.println("Wrong fruit type.");
+        }
     }
-
 }
