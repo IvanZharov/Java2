@@ -39,7 +39,7 @@ public class Box<F extends Fruit> {
     }
 
     public void putToAnotherBox(Box<F> boxToPutIn) {
-        if (fruitsList.getClass().equals(boxToPutIn.getClass()) || boxToPutIn.getFruitsList().isEmpty()) {
+        if (fruitsList.getClass().getName().equals(boxToPutIn.getClass().getName()) || boxToPutIn.getFruitsList().isEmpty()) {
         boxToPutIn.fruitsList.addAll(fruitsList);
         fruitsList.clear();
         } else {
