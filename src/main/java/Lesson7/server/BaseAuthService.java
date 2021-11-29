@@ -2,6 +2,7 @@ package Lesson7.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BaseAuthService implements AuthService {
 
@@ -9,9 +10,9 @@ public class BaseAuthService implements AuthService {
 
     public BaseAuthService() {
         entries = new ArrayList<>();
-        entries.add(new Entry("login1", "pass1", "nick1"));
-        entries.add(new Entry("login2", "pass2", "nick2"));
-        entries.add(new Entry("login3", "pass3", "nick3"));
+        entries.add(new Entry("l1", "p1", "nick1"));
+        entries.add(new Entry("l2", "p2", "nick2"));
+        entries.add(new Entry("l3", "p3", "nick3"));
     }
 
     @Override
@@ -25,13 +26,18 @@ public class BaseAuthService implements AuthService {
     }
 
     @Override
-    public String getNickByLoginAndPass(String login, String pass) {
-        for (Entry entry : entries) {
+    public Optional<String> getNickByLoginAndPass(String login, String pass) {
+        return entries.stream()
+                .filter(entry -> entry.login.equals(login) && entry.password.equals(pass))
+                .map(entry -> entry.nick)
+                .findFirst();
+
+/*        for (Entry entry : entries) {
             if(entry.login.equals(login) && entry.password.equals(pass)) {
                 return entry.nick;
             }
         }
-        return null;
+        return null;*/
     }
 
     private class Entry {

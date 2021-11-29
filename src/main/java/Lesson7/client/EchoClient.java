@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -27,6 +28,7 @@ public class EchoClient extends JFrame {
     private Socket socket;
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
+    private String login;
 
     public EchoClient() {
         try {
@@ -47,13 +49,24 @@ public class EchoClient extends JFrame {
                     String messageFromServer = dataInputStream.readUTF();
                     if (messageFromServer.equals("/end")) {
                         break;
+                    } else if (messageFromServer.startsWith(Constants.AUTH_OK_COMMAND)) {
+                        String[] tokens = messageFromServer.split("\\s+");
+                        this.login = tokens[1];
+                        textArea.append("Успешно авторизован как " + login);
+                        textArea.append("\n");
+                    } else if (messageFromServer.startsWith(Constants.CLIENTS_LIST_COMMAND)) {
+/*------------------------------------------------------------------------------
+Список клиентов
+* */
+                    } else {
+                        textArea.append("Соединение разорвано");
+                        textArea.append("\n");
+//textField.setEnabled(false);
+                        closeConnection();
                     }
-                    textArea.append(messageFromServer);
-                    textArea.append("\n");
                 }
-                textArea.append("Соединение разорвано");
-                textField.setEnabled(false);
-                closeConnection();
+            } catch (EOFException e) {
+                //ignore
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

@@ -22,6 +22,8 @@ public class Constants {
 
     public static final String DIRECT_MESSAGE_COMMAND = "/w";
 
+    public static final String CLIENTS_LIST_COMMAND = "/clients";
+
     private final static int TIME_LIMIT = 120_000;
 
 }

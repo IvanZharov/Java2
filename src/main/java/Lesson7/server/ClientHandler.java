@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Optional;
 
 import Lesson7.constants.Constants;
 
@@ -16,10 +17,6 @@ public class ClientHandler {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
-
-    public String getName() {
-        return name;
-    }
 
     private String name;
 
@@ -54,15 +51,22 @@ public class ClientHandler {
             String str = in.readUTF();
             if (str.startsWith(Constants.AUTH_COMMAND)) {
                 String[] tokens = str.split("\\s+");    //3
-                String nick = server.getAuthService().getNickByLoginAndPass(tokens[1], tokens[2]);
-                if (nick != null) {
-                    //Дописать проверку что такого ника нет в чате(*)
+                Optional<String> nick = server.getAuthService().getNickByLoginAndPass(tokens[1], tokens[2]);
+                if (nick.isPresent()) {
+                    //Дописать проверку, что такого ника нет в чате(*)
                     //Авторизовались
-                    name = nick;
-                    sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
-                    server.broadcastMessage(nick + " вошел в чят");
-                    server.subscribe(this);
-                    return;
+//-------------------------------------------------------------------------------------------
+                    if (server.getActiveClients().contains(nick.get())) {
+                        sendMessage("Такой ник уже есть в активном чате");
+//-------------------------------------------------------------------------------------------
+                    } else {
+                        name = nick.get();
+                        sendMessage(Constants.AUTH_OK_COMMAND + " " + nick);
+                        server.broadcastMessage(nick + " вошел в чят");
+                        server.broadcastMessage(server.getActiveClients());
+                        server.subscribe(this);
+                        return;
+                    }
                 } else {
                     sendMessage("Неверные логин/пароль");
                 }
@@ -77,24 +81,34 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
-
+/*
+* В методе readMessage() есть ошибка при вызове MyServer.sendMessageToClient:
+* Non-static method 'sendMessageToClient(java.lang.String, java.lang.String, java.lang.String)' cannot be referenced from a static context
+* Решить самостоятельно не получилось.
+* */
     private void readMessage() throws IOException {
         while (true) {
             String messageFromClient = in.readUTF();
             //hint: можем получать команду
-
-            if (messageFromClient.equals(Constants.END_COMMAND)) {
-                break;
+            if (messageFromClient.startsWith(Constants.CLIENTS_LIST_COMMAND)) {
+                sendMessage(server.getActiveClients());
             } else if (messageFromClient.equals(Constants.DIRECT_MESSAGE_COMMAND)) {
-                String[] tokens = messageFromClient.split("\\s");
-                String nick = tokens[1];
-                String message  = messageFromClient.substring(4 + nick.length());
-                MyServer.sendMessageToClient(this, nick, message);
+                    String[] tokens = messageFromClient.split("\\s");
+                    String nickToSend = tokens[1];
+                    String message = messageFromClient.substring(4 + nickToSend.length());
+                    MyServer.sendMessageToClient(name, nickToSend, message);
             } else {
-            System.out.println("Сообщение от " + name + ": " + messageFromClient);
-            server.broadcastMessage(name + ": " + messageFromClient);
+                System.out.println("Сообщение от " + name + ": " + messageFromClient);
+                if (messageFromClient.equals(Constants.END_COMMAND)) {
+                    break;
+                }
+                server.broadcastMessage(name + ": " + messageFromClient);
             }
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
     private void closeConnection() {
@@ -117,30 +131,27 @@ public class ClientHandler {
         }
     }
 
+//-------------------------------------------------------------------------------------------
     private void authTimeChecker() {
-            new Thread(() -> {
-                try {
-                    Thread threadAuthChecker = new Thread();
-                    threadAuthChecker.start();
-                    threadAuthChecker.join();
-                    threadAuthChecker.sleep(2000);
-                    if (name != null) {
-                        threadAuthChecker.stop();
-                        /**
-                         * Нужно через .interrupt(), но я не придумал как связать команду из
-                         * authentification() и этот checker (из того метода не видно этот
-                         * поток, поэтому не получилось послать сюда команду),
-                         * поэтому через плохой вариант с .stop()
-                         */
-                    } else {
-                        sendMessage("Вы не подключились, соединение разорвано");
-                        closeConnection();
+        new Thread(() -> {
+            try {
+                Thread threadAuthChecker = new Thread();
+                while (!threadAuthChecker.isInterrupted()) {
+                    for (int i = 0; i < 12 ; i++) {
+                        threadAuthChecker.sleep(10_000);
+                        if (name != null) {
+                            threadAuthChecker.interrupt();
+                        }
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    sendMessage("Вы не подключились, соединение разорвано");
+                    closeConnection();
                 }
+                threadAuthChecker.start();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-            });
-
+        });
     }
+//-------------------------------------------------------------------------------------------
 }
