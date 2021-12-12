@@ -20,7 +20,7 @@ public class ExceptionApp {
                 {"1", "2", "АШИПКА!!", "4"},
                 {"5", "6", "7", "8"}
         };
-        summStringArray(array3);
+        summStringArray(array1);
     }
 
     static int summStringArray(String array[][]) throws MyArraySizeException, MyArrayDataException {

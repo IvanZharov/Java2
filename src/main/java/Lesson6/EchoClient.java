@@ -1,9 +1,6 @@
 package Lesson6;
 
-import Lesson4.WindowApp;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
@@ -11,7 +8,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientApp extends JFrame {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+public class EchoClient extends JFrame {
 
     private final String SERVER_ADDRESS = "localhost";
     private final int SERVER_PORT = 8089;
@@ -23,7 +28,7 @@ public class ClientApp extends JFrame {
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
-    public ClientApp() {
+    public EchoClient() {
         try {
             openConnection();
         } catch (IOException e) {
@@ -36,27 +41,25 @@ public class ClientApp extends JFrame {
         socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
         dataInputStream = new DataInputStream(socket.getInputStream());
         dataOutputStream = new DataOutputStream(socket.getOutputStream());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        String messageFromServer = dataInputStream.readUTF();
-                        if (messageFromServer.equals("/end")) {
-                            break;
-                        }
-                        textArea.append(messageFromServer);
-                        textArea.append("\n");
+        new Thread(() -> {
+            try {
+                while (true) {
+                    String messageFromServer = dataInputStream.readUTF();
+                    if (messageFromServer.equals("/end")) {
+                        break;
                     }
-                    textArea.append("Socket closed");
-                    textField.setEnabled(false);
-                    closeConnection();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                    textArea.append(messageFromServer);
+                    textArea.append("\n");
                 }
+                textArea.append("Соединение разорвано");
+                textField.setEnabled(false);
+                closeConnection();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }).start();
     }
+
 
     private void closeConnection() {
         try {
@@ -84,47 +87,49 @@ public class ClientApp extends JFrame {
             dataOutputStream.writeUTF(textField.getText());
             textField.setText("");
             textField.grabFocus();
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     private void prepareUI() {
-        setTitle("ClientApp");
+        setBounds(200, 200, 500, 500);
+        setTitle("EchoClient");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setBounds(400, 400, 800, 1200);
-        setLayout(null);
 
-        JTextField field = new JTextField();
-        field.setBounds(50,600,500,100);
-        add(field);
-
-        JTextArea textArea = new JTextArea();
-        textArea.setBounds(50,50,500,500);
+        textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setLineWrap(true);
         add(new JScrollPane(textArea), BorderLayout.CENTER);
-        add(textArea);
 
-        JButton button = new JButton("Ввод");
-        button.setBounds(200, 750, 120,40);
-        add(button);
-        setVisible(true);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        JButton button = new JButton("Send");
+        panel.add(button, BorderLayout.EAST);
+        textField = new JTextField();
+        panel.add(textField, BorderLayout.CENTER);
+
+        add(panel, BorderLayout.SOUTH);
+
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sendMessage();
             }
         });
-        field.addActionListener(new ActionListener() {
+        textField.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent actionEvent) {
+            public void actionPerformed(ActionEvent e) {
                 sendMessage();
             }
         });
+
+        setVisible(true);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(ClientApp::new);
+        SwingUtilities.invokeLater(EchoClient::new);
     }
+
+
 }

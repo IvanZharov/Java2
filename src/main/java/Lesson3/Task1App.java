@@ -12,12 +12,6 @@ public class Task1App {
         findUnique(basicWordsList);
 
     }
-/* Создаем копию базового массива.
-В копии удаляем все повторяющиеся элементы.
-Создаем мапу, в которую добавляем все элементы из нашей копии как уникальные ключи.
-Считаем кол-во строк текущего ключа в базовом массиве - это значение мапы.
-
- */
 
     public static String[] findUnique(String[] basic) {
         String[] workList = new String[basic.length];

@@ -2,10 +2,11 @@ package java3_Lesson1;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Box<F extends Fruit> {
 
-    private ArrayList<F> fruitsList;
+    private List<F> fruitsList;
 
     public Box(F... fruits) {
         this.fruitsList = new ArrayList<F>(Arrays.asList(fruits));
@@ -15,13 +16,13 @@ public class Box<F extends Fruit> {
         this.fruitsList.addAll(Arrays.asList(fruits));
     }
 
-    public void removeFruit(F...fruits) {
+    public void removeFruit(F... fruits) {
         for (F elem: fruits) {
             this.fruitsList.remove(elem);
         }
     }
 
-    public ArrayList<F> getFruitsList() {
+    public List<F> getFruitsList() {
         return new ArrayList<F>(fruitsList);
     }
 
