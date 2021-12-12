@@ -58,6 +58,7 @@ public class Car implements Runnable {
         if (!hasWin) {
             hasWin = true;
             System.out.println(car.name + " - WIN");
+
         }
     }
 }
